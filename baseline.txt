@@ -1,0 +1,55 @@
+# Do Trees Improve Hotel Cancellation Predictions over Ridge Logistic Regression?
+
+## Group
+LLJ: Shen, Yining, Fenting
+
+## Changes since the proposal
+Added the ridge penalty now, with C chosen over a log grid on the expanding windows and rare levels grouped inside each training window. 
+Using the data source's definitions, we dropped booking changes (counted until check-in or cancellation), waiting-list days, assigned room type, reservation status and its date. 
+Arrival year is also dropped because it cannot extrapolate to 2017. 
+Set log loss to primary evaluation metric, ROC-AUC secondary; threshold metrics move to an appendix. 
+The target (cancellation probability) is predicted at booking time, but the data contains no reliable booking-creation date, so this can only be approximated.
+
+## Data
+Loaded H1 and H2 plus hotel: N = 119,390. 
+Output: IsCanceled (development cancel rate 0.362). 
+26 reservation inputs (14 numeric, 12 categorical, incl. country, agent, company). 
+Dropped 180 zero-guest rows and 1 negative-ADR row. 
+Arrivals from 1 Jan 2017 (40,619 rows) are removed right after loading, leaving 78,590 development rows.
+
+## Split
+Time order, no shuffling. 
+Four expanding windows, always training from 1 Jul 2015, validating on Jan-Mar, Apr-Jun, Jul-Sep and Oct-Dec 2016 (10,951; 16,190; 15,006; 14,476 rows). 
+Seed 42 (bootstrap only). 
+The Jan-Aug 2017 test set stays locked until tuning ends.
+
+## Baseline
+Ridge logistic regression. 
+Median imputation and standardization for numeric inputs. 
+One-hot encoding for categorical inputs, with levels under 30 training rows grouped as "infrequent". 
+All preprocessing is refit inside each training window. 
+Grid: C = 10^-4 to 10^2 (13 log-spaced values), chosen by lowest mean validation log loss across windows. Chosen C = 0.0032.
+
+## Result
+Mean validation log loss 0.412 nats; per window 0.412, 0.385, 0.419, 0.431; SD across windows 0.020, SE 0.010 (4 windows). 
+Pooled 0.411, 95% bootstrap interval [0.398, 0.425] from 2,000 resamples of weekly arrival-date blocks. 
+Constant prediction: 0.652. AUC per window 0.857, 0.903, 0.875, 0.890. 
+C was picked on the same windows, so this is slightly optimistic.
+
+## Issues found
+- Many exact duplicate rows exist; we kept them, so copies may sit in both training and validation. We will test dropping them.
+- Window 1 trains without any Jan-Mar data.
+- The data paper builds inputs as of the day before arrival, so amendments are included; "known at booking" holds only approximately.
+- Some flagged but kept features (possible data leakage), not sure if we should keep them:
+1. DepositType is derived from payments before arrival or cancellation and is our strongest predictor.
+2. ADR comes from transactions (timing undocumented); one 5,400 outlier, clipped to [0, 1000].
+3. Parking and special requests may be added after booking; none of 5,207 bookings with a parking request cancelled. Kept, with a rerun without them.
+
+## Next steps
+- Fenting: duplicates check, no-DepositType rerun, appendix threshold metrics.
+- Shen: classification tree on the same windows, tuned by mean validation log loss.
+- Yining: random forest on the same windows and tuning.
+- All: paired block-bootstrap code (blocks by week, to be stated in the paper) and first key figures containing all three models (not just baseline).
+
+## Code
+

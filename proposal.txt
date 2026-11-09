@@ -1,0 +1,73 @@
+# Do Trees Improve Hotel Cancellation Predictions over Ridge Logistic Regression?
+
+## Group
+LLJ
+1. Shen Li, PennID: 30517783, Email: lishen18@engineering.upenn.edu
+2. Yining Liang, PennID: 38657069, Email: yinil22@engineering.upenn.edu
+3. Fenting Jin, PennID: 72088200, Email: ivyjin@engineering.upenn.edu
+
+## Topic
+own
+
+## Question
+Do decision trees and random forests achieve lower out-of-time log loss than logistic regression when predicting hotel booking cancellations?
+
+## Why it matters
+Cancellations create uncertainty in occupancy and revenue planning. 
+Hotels could use risk estimates to prioritize reservation follow-ups and assess room availability. 
+Model comparisons and feature associations can inform these decisions without claiming causal effects or proven revenue gains.
+
+## Data
+Hotel Booking Demand Dataset (Antonio et al., 2019): https://www.sciencedirect.com/science/article/pii/S2352340918315191?via%3Dihub#s0020
+
+The loaded H1 and H2 csv files contain 40,060 and 79,330 bookings, respectively, with 31 columns each. 
+Adding hotel type produces 32 columns, including the cancellation target. 
+Records cover two Portuguese hotels from July 2015 to August 2017, with identifying information removed.
+
+CC BY 4.0 permits reuse and redistribution of derived figures with appropriate attribution. 
+We will exclude final reservation status, its date, and other fields unavailable at the intended prediction time.
+
+## Baseline
+Logistic regression from Module 3: Classification will serve as our baseline. 
+We will encode categorical features and scale numeric features, fitting preprocessing only on training data. 
+Regularization may be added after Module 5.
+
+## Comparison
+We will compare the baseline with a classification tree and a random forest from Module 7: Tree-Based Methods. 
+All models will use the same eligible features and data splits. 
+We will examine predictive performance, tree complexity, and interpretability.
+
+## Evaluation
+We will apply validation and bootstrap methods from Module 4. 
+Within July 2015–December 2016, we will use earlier bookings for training and later bookings for validation to select hyperparameters. 
+As a time-ordered extension of cross-validation, we will repeat this process with expanding training windows.
+
+After tuning, we will refit on all development data and evaluate once on the January–August 2017 testing set.
+
+Metrics:
+1. Mean log loss
+2. Precision, recall, F1, accuracy
+3. Confusion matrix, using a common 0.5 classification threshold as default
+4. ROC-AUC
+
+We will estimate 95% confidence intervals using 2,000 paired bootstrap samples of arrival-date blocks, applying the same samples to all models.
+
+## Key figure
+A plot of test log-loss differences relative to logistic regression, with paired 95% bootstrap confidence intervals and a zero reference line. 
+Negative differences favor the tree-based model; intervals crossing zero indicate inconclusive differences.
+
+## Risks and fallback
+Feature timestamps, missing values, moderate class imbalance, dependence, and temporal shifts may limit prediction. 
+Conservative feature exclusions may reduce performance.
+If complex models offer no clear improvement, we will report this result with uncertainty and discuss interpretability tradeoffs.
+
+## Who does what
+1. Fenting: introduction, preprocessing, booking-characteristic EDA, logistic regression, and evaluation.
+2. Shen: customer-characteristic EDA, decision tree, tuning, and evaluation.
+3. Yining: channel/pricing EDA, random forest, tuning, and evaluation.
+All: shared validation, statistical comparisons, paper, and video.
+
+## AI plan
+Use ChatGPT for planning and editing, and Codex for coding assistance and debugging. 
+We will check references, inspect code, rerun experiments, and verify reported claims. 
+The acknowledgements will disclose AI use.
