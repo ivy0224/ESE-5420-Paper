@@ -19,8 +19,7 @@ The primary objective is to compare different classification approaches and eval
 
 ## 3. Dataset
 
-The project uses two hotel booking datasets:
-
+We use the public [Hotel Booking Demand Datasets](https://www.sciencedirect.com/science/article/pii/S2352340918315191?via%3Dihub#s0010) published by Antonio, de Almeida, and Nunes (2019):
 - **H1.csv:** Resort Hotel bookings
 - **H2.csv:** City Hotel bookings
 
